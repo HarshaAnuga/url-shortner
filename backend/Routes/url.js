@@ -23,12 +23,13 @@ router.post("/shorten",async(req,res)=>{
     
     while(exists){
         shortId=nanoid(7);
-        exists=await Url.findOne({shortid})
+        exists=await Url.findOne({shortid});
     }
     
     const url = await Url.create({
         shortId,
         originalUrl,
+        clicks:0,
     });
 
     res.json({
