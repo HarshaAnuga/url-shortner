@@ -2,16 +2,16 @@
 ## Tech Stack
 ### Frontend
 
-React.                
+•React.                
 
-Tailwind CSS and Daisy ui
+•Tailwind CSS and Daisy ui
 
 ### Backend
 
-Node.js
+•Node.js
 
-Express.js
+•Express.js
 
-MongoDB
+•MongoDB
 
-Mongoose
+•Mongoose
