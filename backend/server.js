@@ -15,7 +15,7 @@ app.use(express.json());
 
 app.use("/", urlRoutes);
 
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URL)
 .then(()=>{
     console.log("connected to MongoDB");
     app.listen(process.env.PORT,()=>{
