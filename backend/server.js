@@ -18,12 +18,18 @@ app.use("/", urlRoutes);
 mongoose.connect(process.env.MONGO_URL)
 .then(()=>{
     console.log("connected to MongoDB");
-    app.listen(process.env.PORT,()=>{
-        console.log(`Server running on port ${process.env.PORT}`);
+    const PORT = Number(process.env.PORT) || 5001;
 
-    })
-    .catch((err)=>{
-        console.error("Error connecting to MongoDB:",err);
+  const server = app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 
-    });
+  server.on("error", (err) => {
+    console.error("Server failed to start:", err);
+    process.exit(1);
+  });
 })
+.catch((err) => {
+  console.error("Database connection or startup failed:", err);
+  process.exit(1);
+});
