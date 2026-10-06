@@ -6,4 +6,4 @@ const UrlSchema=new mongoose.Schema({
     clicks:{type:Number,default:0},
 },  {timpestamps:true});
 
-export default mongoose.model("Url",urlSchema);
+export default mongoose.model("Url",UrlSchema);
