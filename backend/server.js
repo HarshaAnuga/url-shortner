@@ -21,21 +21,23 @@ app.use(express.json());
 
 app.use("/", urlRoutes);
 
-mongoose.connect(process.env.MONGO_URL)
-.then(()=>{
-    console.log("connected to MongoDB");
-    const PORT = Number(process.env.PORT) || 5001;
+async function startServer() {
+  try {
+    if (!process.env.MONGO_URL) {
+      throw new Error("MONGO_URL is not configured");
+    }
 
-  const server = app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+    await mongoose.connect(process.env.MONGO_URL);
 
-  server.on("error", (err) => {
-    console.error("Server failed to start:", err);
+    console.log("Connected to MongoDB");
+
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Database connection or startup failed:", error);
     process.exit(1);
-  });
-})
-.catch((err) => {
-  console.error("Database connection or startup failed:", err);
-  process.exit(1);
-});
+  }
+}
+
+startServer();
