@@ -19,6 +19,9 @@ function App() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    const url = originalUrl.trim();
+
+    if (!url) return;
     setError("");
     setCopied(false);
     setShortUrl("");
@@ -27,21 +30,35 @@ function App() {
     try {
       const { data } = await axios.post(
         `${API_URL}/shorten`,
-        { originalUrl: originalUrl.trim() },
+        { originalUrl: url },
         { timeout: 10000 }
       );
+      if (!data?.shortUrl) {
+      throw new Error("Invalid response from server");
+      }
       setShortUrl(data.shortUrl);
-    } catch (err) {
-      if (err.response?.data?.error) setError(err.response.data.error);
-      else if (err.code === "ECONNABORTED") setError("Request timed out. Try again.");
-      else if (err.request) setError("Cannot reach the server. Check your connection.");
-      else setError("Could not shorten this URL");
-    } finally {
+    } 
+    catch (err) {
+  if (axios.isAxiosError(err)) {
+    if (err.response?.data?.error) {
+      setError(err.response.data.error);
+    } else if (err.code === "ECONNABORTED") {
+      setError("Request timed out. Try again.");
+    } else if (err.request) {
+      setError("Cannot reach the server. Check your connection.");
+    } else {
+      setError("Could not shorten this URL.");
+    }
+  } else {
+    setError("Invalid response from server.");
+  }
+} finally {
       setLoading(false);
     }
   };
 
   const handleCopy = async () => {
+    if(!shortUrl)
     try {
       await navigator.clipboard.writeText(shortUrl);
       setCopied(true);
@@ -52,24 +69,39 @@ function App() {
   };
 
   const handleDownloadQr = () => {
-    const svg = qrRef.current?.querySelector("svg");
-    if (!svg) return;
-    const blob = new Blob([new XMLSerializer().serializeToString(svg)], {
-      type: "image/svg+xml",
-    });
-    const href = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = href;
-    link.download = "short-link-qr.svg";
-    link.click();
-    URL.revokeObjectURL(href);
-  };
+  const svg = qrRef.current?.querySelector("svg");
+
+  if (!svg) {
+    setError("QR code is not available.");
+    return;
+  }
+
+  const clonedSvg = svg.cloneNode(true);
+  clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+
+  const svgString = new XMLSerializer().serializeToString(clonedSvg);
+  const blob = new Blob([svgString], {
+    type: "image/svg+xml;charset=utf-8",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "short-link-qr.svg";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+};
 
   const handleReset = () => {
     setOriginalUrl("");
     setShortUrl("");
     setError("");
     setCopied(false);
+    setLoading(false);
   };
 
   return (
@@ -95,7 +127,10 @@ function App() {
               className={`input input-bordered w-full ${error ? "input-error" : ""}`}
               placeholder="https://example.com/very/long/path"
               value={originalUrl}
-              onChange={(e) => setOriginalUrl(e.target.value)}
+              onChange={(e) => {
+                setOriginalUrl(e.target.value)
+                setError("");
+              }}
               autoFocus
               required
               aria-invalid={Boolean(error)}
