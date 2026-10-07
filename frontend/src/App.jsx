@@ -39,6 +39,7 @@ function App() {
       setShortUrl(data.shortUrl);
     } 
     catch (err) {
+      console.error("Shorten request failed:", err);
   if (axios.isAxiosError(err)) {
     if (err.response?.data?.error) {
       setError(err.response.data.error);
