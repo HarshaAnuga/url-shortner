@@ -7,6 +7,7 @@ import urlRoutes from './Routes/url.js'
 dotenv.config();
 const app=express();
 
+const PORT = Number(process.env.PORT) || 5001;
 const FRONTEND_URL =
   process.env.FRONTEND_URL || "http://localhost:5173";
 
