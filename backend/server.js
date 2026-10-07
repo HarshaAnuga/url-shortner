@@ -7,10 +7,16 @@ import urlRoutes from './Routes/url.js'
 dotenv.config();
 const app=express();
 
-app.use(cors({
-    origin:process.env.FRONTEND_URL,
-    methods:["GET","POST"],
-}))
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "http://localhost:5173";
+
+const corsOptions = {
+  origin: FRONTEND_URL,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use("/", urlRoutes);
